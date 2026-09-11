@@ -3,12 +3,41 @@ from collections import Counter
 
 import matplotlib.pyplot as plt
 
-# add token -> letter mappings here as you figure them out
-MAPPING = {
-    # "x1": "T",
-    # "p5": "H",
+# holds what homophones each alphabet maps to
+INVERSE_MAPPINGS = {
+    "A": ["c3", "d6", "i2", "s3", "s6", "v0", "y2"],
+    "B": ["x1"],
+    "C": ["a6", "c1"],
+    "D": ["a7", "i6", "q0", "r4", "y9"],
+    "E": ["a8", "a9", "c7", "m1", "m4", "p5", "t0", "u1"],
+    "F": ["g6", "t2"],
+    "G": ["h9", "v8"],
+    "H": ["j1", "j6", "l1", "o9",],
+    "I": ["j4", "q8", "t5", "u2", "v2"],
+    "J": ["p2"],
+    "L": ["e1", "m6", "o4", "p1", "s2"],
+    "M": ["j7", "p3", "x0"],
+    "N": ["b0", "g0", "k5"],
+    "O": ["b6", "e6", "l8", "m3", "q1", "q2", "r1", "x8"],
+    "P": ["c6", "j9"],
+    "Q": ["u5"],
+    "R": ["c4", "g2", "u4", "y4", "z0", "z7"],
+    "S": ["i5", "i8", "o8", "r3", "w1", "w6"],
+    "T": ["b3", "c2", "i7", "r2", "r6", "v6"],
+    "U": ["m9", "q7", "y3"],
+    "V": ["d8"],
+    "X": ["x6"],
+    "Y": ["q9", "s0"],
+    "Z": ["e0"],
 }
 
+
+def inverse_to_mapping(inverse_mappings):
+    mapping = {}
+    for letter, tokens in inverse_mappings.items():
+        for token in tokens:
+            mapping[token] = letter
+    return mapping
 
 # this function reads the ciphertext from a file and returns it as a list of strings, split by the "|" character
 def read_ciphertext(filename):
@@ -107,19 +136,30 @@ def translate(tokens, mapping):
     return "".join(result)
 
 
+# this function writes the plaintext to a file
+def write_plaintext(filename, plaintext):
+    with open(filename, "w", encoding="utf-8") as f:
+        f.write(plaintext)
+
+
 def main():
     tokens = read_ciphertext("ciphertext.txt")
-    frequencies = count_homophones(tokens)
+    homophones = count_homophones(tokens)
     bigrams = count_bigrams(tokens)
     trigrams = count_trigrams(tokens)
 
-    plot_frequencies(frequencies, 20, "Homophones")
+    plot_frequencies(homophones, 20, "Homophones")
     plot_frequencies(bigrams, 15, "Bigrams")
     plot_frequencies(trigrams, 10, "Trigrams")
 
-    plaintext = translate(tokens, MAPPING)
-    print("\nplaintext:")
-    print(plaintext)
+    mapping = inverse_to_mapping(INVERSE_MAPPINGS)
+    print("\nMAPPING:")
+    for token in sorted(mapping):
+        print(f"  {token}: {mapping[token]}")
+
+    plaintext = translate(tokens, mapping)
+    write_plaintext("plaintext.txt", plaintext)
+    print("\nplaintext written to plaintext.txt")
 
 
 if __name__ == "__main__":
